@@ -2,6 +2,7 @@ require('dotenv').config();
 
 const tmi = require('tmi.js');
 const process = require('process');
+const fight = require('./handler/fight')
 
 //Bot setup
 const opts = {
@@ -21,8 +22,6 @@ client.on('connected', onConnectedHandler);
 
 client.connect();
 
-let cooldown = false;
-
 //Handle exits
 process.on('exit', (code) => {
   console.log(">> EXIT");
@@ -38,29 +37,14 @@ function onConnectedHandler(addr, port) {
 }
 
 function onMessageHandler(channel, context, msg, self) {
-  if (self) { return; }
+  if (self) {
+    return;
+  }
 
   //prepare message and log it
   const commandName = msg.trim();
-  let username = context['username'];
+  let username = context["username"];
   console.log(`${username}: ${commandName}`);
 
-
-  //handle commands
-  if (cooldown) { return; }
-  if (commandName.startsWith("!fight")) {
-    handleCommand(FightCommand, channel, 15000);
-  }
-}
-
-function handleCommand(command, channel, cooldownTime = 5000) {
-  command(channel);
-
-  cooldown = true;
-  setTimeout(function () { cooldown = false; console.log(">> timeout reset"); }, cooldownTime);
-}
-
-function FightCommand(target) {
-  client.say(target, `!fight c:`);
-  console.log(`>> triggerd !fight`);
+  fight.handler(client, channel, context, msg);
 }
