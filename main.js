@@ -48,7 +48,7 @@ function onMessageHandler(channel, context, msg, self) {
 
   //handle commands
   if (cooldown) { return; }
-  if (commandName.slice(0,6) === '!fight') {
+  if (commandName.startsWith("!fight")) {
     handleCommand(FightCommand, channel, 15000);
   }
 }
