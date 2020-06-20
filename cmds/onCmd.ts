@@ -1,23 +1,28 @@
 import type { ChatUserstate, Client } from "tmi.js";
+
 let cooldown = false;
 
 export function handler(
+  globalSettings: Object,
   client: Client,
   channel: string,
   state: ChatUserstate,
   message: string
 ) {
   if (cooldown) return;
-  if (!message.startsWith("!fight")) return;
+  if (!message.startsWith("!on")) return;
+
+  if (globalSettings["active"]) return;
   cooldown = true;
 
-  // Send "!Fight"
-  client.say(channel, `!fight ${Date.now()}`);
-  console.log(`>> ${state.username} triggerd !fight`);
+  client.say(channel, `!turning on`);
+  console.log(`>> ${state.username} triggerd !onCmd`);
+
+  globalSettings["active"] = true;
 
   // Reset cooldown
   setTimeout(() => {
     cooldown = false;
-    console.log(">> timeout reset");
-  }, 15000);
+    console.log(">>!onCmd timeout reset");
+  }, 1000);
 }

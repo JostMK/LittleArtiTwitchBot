@@ -1,8 +1,10 @@
 require('dotenv').config();
 
 const tmi = require('tmi.js');
-const process = require('process');
-const fight = require('./handler/fight')
+
+var globalSettings = {
+  active: true,
+};
 
 //Bot setup
 const opts = {
@@ -32,6 +34,16 @@ process.on('SIGINT', (code) => {
 });
 
 
+//load all commands
+const fight = require('./cmds/fightCmd')
+const off = require('./cmds/offCmd')
+const on = require('./cmds/onCmd')
+const stats = require('./cmds/statsCmd')
+
+//init commands
+stats.init();
+
+
 function onConnectedHandler(addr, port) {
   console.log(`* Connected to ${addr}:${port}\n`);
 }
@@ -46,5 +58,9 @@ function onMessageHandler(channel, context, msg, self) {
   let username = context["username"];
   console.log(`${username}: ${commandName}`);
 
-  fight.handler(client, channel, context, msg);
+  //handle commands
+  fight.handler(globalSettings, client, channel, context, msg);
+  off.handler(globalSettings, client, channel, context, msg);
+  on.handler(globalSettings, client, channel, context, msg);
+  stats.handler(globalSettings, client, channel, context, msg);
 }
