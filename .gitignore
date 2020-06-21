@@ -102,3 +102,9 @@ dist
 
 # TernJS port file
 .tern-port
+
+# spezial scripts
+run
+
+# spezial data ignores
+data/stats.json
