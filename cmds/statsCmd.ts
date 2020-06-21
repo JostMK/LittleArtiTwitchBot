@@ -2,6 +2,7 @@ import type { ChatUserstate, Client } from "tmi.js";
 import fs = require('fs');
 
 const filePath = 'data/stats.json';
+const autoSaveInterval = 15;
 
 let cooldown = false;
 let stats: { [id: string]: number; } = {};
@@ -12,6 +13,8 @@ export function init() {
     process.on('exit', (code) => {
         SaveStats();
     });
+
+    SheduleAutoSave();
 }
 
 export function handler(
@@ -22,7 +25,6 @@ export function handler(
     message: string
 ) {
     HandleNewMessage(state);
-
 
     if (cooldown) return;
     if (!message.startsWith("!stats")) return;
@@ -68,4 +70,17 @@ function LoadStats() {
     if (jsonData == "") { return; }
 
     stats = JSON.parse(jsonData);
+}
+
+//auto Save
+function SheduleAutoSave() {
+    setTimeout(() => {
+        AutoSave();
+    }, autoSaveInterval*60*1000);
+}
+
+function AutoSave() {
+    console.log(">>Autosaving");
+    SaveStats();
+    SheduleAutoSave();
 }
