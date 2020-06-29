@@ -9,6 +9,8 @@ export function handler(
   state: ChatUserstate,
   message: string
 ) {
+  if (globalSettings['userBlacklist'].includes(state['username'])) return;
+
   if (cooldown) return;
   if (!message.startsWith("!fight")) return;
 

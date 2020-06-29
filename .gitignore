@@ -108,3 +108,4 @@ run
 
 # spezial data ignores
 data/stats.json
+data/blacklist.json

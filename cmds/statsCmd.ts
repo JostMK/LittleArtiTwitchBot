@@ -24,6 +24,8 @@ export function handler(
     state: ChatUserstate,
     message: string
 ) {
+    if (globalSettings['userBlacklist'].includes(state['username'])) return;
+
     HandleNewMessage(state);
 
     if (cooldown) return;

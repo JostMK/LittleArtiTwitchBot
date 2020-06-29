@@ -1,10 +1,23 @@
 require('dotenv').config();
+const fs = require('fs');
 
 const tmi = require('tmi.js');
 
 var globalSettings = {
   active: true,
+  userBlacklist: loadBlacklist(),
 };
+
+function loadBlacklist(){
+  let filePath = './data/blacklist.json';
+  if(!fs.existsSync(filePath))
+    return [];
+
+  let jsonData = fs.readFileSync(filePath, 'utf8');
+  if (jsonData == "") return [];
+
+  return JSON.parse(jsonData);
+}
 
 //Bot setup
 const opts = {
