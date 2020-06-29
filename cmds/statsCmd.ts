@@ -32,6 +32,45 @@ export function handler(
     if (!message.startsWith("!stats")) return;
     cooldown = true;
 
+    if (message.length > 7)
+        HandlePersonalStats(client, channel, state, message);
+    else
+        HandleTopFiveStats(client, channel, state);
+}
+
+function HandlePersonalStats(
+    client: Client,
+    channel: string,
+    state: ChatUserstate,
+    message: string
+) {
+    let username = message.substr(7).toLowerCase();
+    if (username.startsWith('@'))
+        username = username.substr(1, username.length - 1)
+
+    console.log(username);
+    let userStats = stats[username];
+    if (userStats == null) {
+        HandleTopFiveStats(client, channel, state);
+        return;
+    }
+
+    client.say(channel, `${username} has send ${userStats} Messages`);
+
+    console.log(`>> ${state.username} triggerd !statsCmd for ${username}`);
+
+    // Reset cooldown
+    setTimeout(() => {
+        cooldown = false;
+        console.log(">>!statsCmd timeout reset");
+    }, 5000);
+}
+
+function HandleTopFiveStats(
+    client: Client,
+    channel: string,
+    state: ChatUserstate,
+) {
     // Send stats
     let topFive = Object.entries(stats).sort((a, b) => b[1] - a[1]).slice(0, 5)
 
@@ -78,7 +117,7 @@ function LoadStats() {
 function SheduleAutoSave() {
     setTimeout(() => {
         AutoSave();
-    }, autoSaveInterval*60*1000);
+    }, autoSaveInterval * 60 * 1000);
 }
 
 function AutoSave() {
