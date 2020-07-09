@@ -3,14 +3,23 @@ const fs = require('fs');
 
 const tmi = require('tmi.js');
 
+//Handle exits
+process.on('exit', (code) => {
+  console.log(">> EXIT");
+});
+process.on('SIGINT', (code) => {
+  console.log(">> FORCED EXIT");
+  process.exit();
+});
+
 var globalSettings = {
   active: true,
   userBlacklist: loadBlacklist(),
 };
 
-function loadBlacklist(){
+function loadBlacklist() {
   let filePath = './data/blacklist.json';
-  if(!fs.existsSync(filePath))
+  if (!fs.existsSync(filePath))
     return [];
 
   let jsonData = fs.readFileSync(filePath, 'utf8');
@@ -30,22 +39,25 @@ const opts = {
   ]
 };
 
-const client = new tmi.client(opts);
+let client;
+function CreateClient() {
+  client = new tmi.client(opts);
 
-client.on('message', onMessageHandler);
-client.on('connected', onConnectedHandler);
+  client.on('message', onMessageHandler);
+  client.on('connected', onConnectedHandler);
+  client.on("reconnect", () => {
+    console.log(">> RECONNECTING");
+    client.disconnect();
+    CreateClient();
+  });
+  client.on("disconnected", (reason) => {
+    console.log(">> DISCONNECTED: " + reason);
+  });
 
-client.connect();
+  client.connect();
+}
 
-//Handle exits
-process.on('exit', (code) => {
-  console.log(">> EXIT");
-});
-process.on('SIGINT', (code) => {
-  console.log(">> FORCED EXIT");
-  process.exit();
-});
-
+CreateClient();
 
 //load all commands
 const fight = require('./cmds/fightCmd')
